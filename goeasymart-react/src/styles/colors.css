@@ -1,0 +1,20 @@
+:root {
+  --gold: #C8972B;
+  --gold-light: #E8B84B;
+  --gold-pale: #F9F1DC;
+  --deep: #ffffff;
+  --navy: #faf6ee;
+  --ink: #1a1a1a;
+  --cream: #fffdf8;
+  --white: #ffffff;
+  --rust: #B84B2A;
+  --green: #2D6A4F;
+  --green-light: #52B788;
+  --text-muted: #6B7280;
+  --border: rgba(200, 151, 43, 0.2);
+  --dark: #ffffff;
+  --dark2: #f5f5f5;
+  --yellow: #C8972B;
+  --radius: 20px;
+  --transition: all 0.25s ease;
+}
