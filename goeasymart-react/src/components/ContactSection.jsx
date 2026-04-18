@@ -12,19 +12,138 @@ const ContactSection = () => {
     term: 'FOB',
     message: ''
   });
+  
   const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState({ type: '', text: '' });
   
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id.replace('form', '')]: e.target.value });
+    const { id, value } = e.target;
+    const fieldName = id.replace('form', '').charAt(0).toLowerCase() + id.replace('form', '').slice(1);
+    setFormData({ ...formData, [fieldName]: value });
+    
+    // Clear error for this field when user starts typing
+    if (errors[fieldName]) {
+      setErrors({ ...errors, [fieldName]: '' });
+    }
   };
   
-  const handleSubmit = () => {
-    if (!formData.name || !formData.email) {
-      alert('Please fill your name and email.');
+  const validateForm = () => {
+    const newErrors = {};
+    
+    // Name validation
+    if (!formData.name.trim()) {
+      newErrors.name = 'Please enter your name';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
+    }
+    
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = 'Please enter your email address';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        newErrors.email = 'Please enter a valid email address (e.g., name@domain.com)';
+      }
+    }
+    
+    // Company validation (optional but if provided, validate)
+    if (formData.company.trim() && formData.company.trim().length < 2) {
+      newErrors.company = 'Company name must be at least 2 characters if provided';
+    }
+    
+    // Country validation (optional but if provided, validate)
+    if (formData.country.trim() && formData.country.trim().length < 2) {
+      newErrors.country = 'Please enter a valid country name';
+    }
+    
+    // Quantity validation (optional)
+    if (formData.qty.trim() && isNaN(formData.qty)) {
+      newErrors.qty = 'Quantity must be a number';
+    } else if (formData.qty.trim() && parseFloat(formData.qty) <= 0) {
+      newErrors.qty = 'Quantity must be greater than 0';
+    }
+    
+    // Message validation (optional)
+    if (formData.message.trim() && formData.message.trim().length < 5) {
+      newErrors.message = 'Message should be at least 5 characters if provided';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+  const handleSubmit = async () => {
+    // Validate form
+    if (!validateForm()) {
+      setSubmitMessage({ 
+        type: 'error', 
+        text: 'Please fix the errors above before submitting.' 
+      });
+      
+      // Auto-hide error message after 5 seconds
+      setTimeout(() => {
+        setSubmitMessage({ type: '', text: '' });
+      }, 5000);
       return;
     }
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 5000);
+    
+    setIsSubmitting(true);
+    
+    // Simulate API call (replace with actual API endpoint)
+    try {
+      // Prepare data for submission
+      const submissionData = {
+        ...formData,
+        submittedAt: new Date().toISOString()
+      };
+      
+      console.log('Submitting inquiry:', submissionData);
+      
+      // Simulate network request
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Success message
+      setSubmitMessage({ 
+        type: 'success', 
+        text: '✅ Inquiry submitted successfully! Our trade team will contact you within 24 hours.' 
+      });
+      
+      // Reset form after successful submission
+      setFormData({
+        name: '',
+        company: '',
+        email: '',
+        country: '',
+        product: 'Rice & Grains',
+        qty: '',
+        term: 'FOB',
+        message: ''
+      });
+      
+      setSubmitted(true);
+      
+      // Auto-hide success message after 5 seconds
+      setTimeout(() => {
+        setSubmitMessage({ type: '', text: '' });
+        setSubmitted(false);
+      }, 5000);
+      
+    } catch (error) {
+      console.error('Submission error:', error);
+      setSubmitMessage({ 
+        type: 'error', 
+        text: '❌ Something went wrong. Please try again or contact us directly.' 
+      });
+      
+      setTimeout(() => {
+        setSubmitMessage({ type: '', text: '' });
+      }, 5000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -91,28 +210,66 @@ const ContactSection = () => {
               <div className="row g-3 mb-3">
                 <div className="col-md-6">
                   <label className="form-label" style={{ fontSize: '13px', color: '#555' }}>Your Name *</label>
-                  <input type="text" id="formName" className="form-control" onChange={handleChange} style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }} />
+                  <input 
+                    type="text" 
+                    id="formName" 
+                    className={`form-control ${errors.name ? 'is-invalid' : ''}`} 
+                    value={formData.name}
+                    onChange={handleChange} 
+                    style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }} 
+                  />
+                  {errors.name && <div className="invalid-feedback" style={{ fontSize: '12px', color: '#dc3545' }}>{errors.name}</div>}
                 </div>
                 <div className="col-md-6">
                   <label className="form-label" style={{ fontSize: '13px', color: '#555' }}>Company</label>
-                  <input type="text" id="formCompany" className="form-control" onChange={handleChange} style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }} />
+                  <input 
+                    type="text" 
+                    id="formCompany" 
+                    className={`form-control ${errors.company ? 'is-invalid' : ''}`} 
+                    value={formData.company}
+                    onChange={handleChange} 
+                    style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }} 
+                  />
+                  {errors.company && <div className="invalid-feedback" style={{ fontSize: '12px', color: '#dc3545' }}>{errors.company}</div>}
                 </div>
               </div>
               
               <div className="row g-3 mb-3">
                 <div className="col-md-6">
                   <label className="form-label" style={{ fontSize: '13px', color: '#555' }}>Email *</label>
-                  <input type="email" id="formEmail" className="form-control" onChange={handleChange} style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }} />
+                  <input 
+                    type="email" 
+                    id="formEmail" 
+                    className={`form-control ${errors.email ? 'is-invalid' : ''}`} 
+                    value={formData.email}
+                    onChange={handleChange} 
+                    style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }} 
+                  />
+                  {errors.email && <div className="invalid-feedback" style={{ fontSize: '12px', color: '#dc3545' }}>{errors.email}</div>}
                 </div>
                 <div className="col-md-6">
                   <label className="form-label" style={{ fontSize: '13px', color: '#555' }}>Country</label>
-                  <input type="text" id="formCountry" className="form-control" onChange={handleChange} style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }} />
+                  <input 
+                    type="text" 
+                    id="formCountry" 
+                    className={`form-control ${errors.country ? 'is-invalid' : ''}`} 
+                    value={formData.country}
+                    onChange={handleChange} 
+                    style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }} 
+                  />
+                  {errors.country && <div className="invalid-feedback" style={{ fontSize: '12px', color: '#dc3545' }}>{errors.country}</div>}
                 </div>
               </div>
               
               <div className="mb-3">
                 <label className="form-label" style={{ fontSize: '13px', color: '#555' }}>Product Required</label>
-                <select id="formProduct" className="form-select" onChange={handleChange} style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }}>
+                <select 
+                  id="formProduct" 
+                  className="form-select" 
+                  value={formData.product}
+                  onChange={handleChange} 
+                  style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }}
+                >
                   <option>Rice & Grains</option>
                   <option>Spices & Condiments</option>
                   <option>Seeds & Nuts</option>
@@ -126,11 +283,25 @@ const ContactSection = () => {
               <div className="row g-3 mb-3">
                 <div className="col-md-6">
                   <label className="form-label" style={{ fontSize: '13px', color: '#555' }}>Quantity (MT)</label>
-                  <input type="text" id="formQty" className="form-control" onChange={handleChange} style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }} />
+                  <input 
+                    type="text" 
+                    id="formQty" 
+                    className={`form-control ${errors.qty ? 'is-invalid' : ''}`} 
+                    value={formData.qty}
+                    onChange={handleChange} 
+                    style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }} 
+                  />
+                  {errors.qty && <div className="invalid-feedback" style={{ fontSize: '12px', color: '#dc3545' }}>{errors.qty}</div>}
                 </div>
                 <div className="col-md-6">
                   <label className="form-label" style={{ fontSize: '13px', color: '#555' }}>Trade Term</label>
-                  <select id="formTerm" className="form-select" onChange={handleChange} style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }}>
+                  <select 
+                    id="formTerm" 
+                    className="form-select" 
+                    value={formData.term}
+                    onChange={handleChange} 
+                    style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px' }}
+                  >
                     <option>FOB</option>
                     <option>CIF</option>
                     <option>CFR</option>
@@ -141,16 +312,45 @@ const ContactSection = () => {
               
               <div className="mb-3">
                 <label className="form-label" style={{ fontSize: '13px', color: '#555' }}>Message</label>
-                <textarea id="formMessage" className="form-control" onChange={handleChange} placeholder="Describe your requirements, packaging preferences, port of loading/destination..." rows="3" style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px', fontFamily: 'inherit' }}></textarea>
+                <textarea 
+                  id="formMessage" 
+                  className={`form-control ${errors.message ? 'is-invalid' : ''}`} 
+                  value={formData.message}
+                  onChange={handleChange} 
+                  placeholder="Describe your requirements, packaging preferences, port of loading/destination..." 
+                  rows="3" 
+                  style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '13px 16px', fontSize: '14px', fontFamily: 'inherit' }}
+                ></textarea>
+                {errors.message && <div className="invalid-feedback" style={{ fontSize: '12px', color: '#dc3545' }}>{errors.message}</div>}
               </div>
               
-              <button onClick={handleSubmit} className="w-100" style={{ background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', color: 'var(--deep)', fontWeight: 700, padding: '16px', border: 'none', borderRadius: '10px', cursor: 'pointer', transition: 'transform 0.2s ease' }}>
-                📩 Submit Trade Inquiry
+              <button 
+                onClick={handleSubmit} 
+                disabled={isSubmitting}
+                className="w-100" 
+                style={{ 
+                  background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', 
+                  color: 'var(--deep)', 
+                  fontWeight: 700, 
+                  padding: '16px', 
+                  border: 'none', 
+                  borderRadius: '10px', 
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer', 
+                  transition: 'transform 0.2s ease',
+                  opacity: isSubmitting ? 0.7 : 1
+                }}
+              >
+                {isSubmitting ? 'Submitting...' : '📩 Submit Trade Inquiry'}
               </button>
               
-              {submitted && (
-                <div className="text-center mt-3 p-3" style={{ color: 'var(--green-light)', background: 'rgba(40, 167, 69, 0.1)', borderRadius: '10px' }}>
-                  ✅ Inquiry submitted! Our trade team will contact you within 24 hours.
+              {submitMessage.text && (
+                <div className={`text-center mt-3 p-3`} style={{ 
+                  color: submitMessage.type === 'success' ? '#28a745' : '#dc3545', 
+                  background: submitMessage.type === 'success' ? 'rgba(40, 167, 69, 0.1)' : 'rgba(220, 53, 69, 0.1)', 
+                  borderRadius: '10px',
+                  fontSize: '14px'
+                }}>
+                  {submitMessage.text}
                 </div>
               )}
             </div>
@@ -165,7 +365,7 @@ const ContactSection = () => {
           box-shadow: 0 0 0 0.2rem rgba(200, 151, 43, 0.25) !important;
         }
         
-        button:hover {
+        button:hover:not(:disabled) {
           transform: translateY(-2px);
           box-shadow: 0 5px 15px rgba(200, 151, 43, 0.3);
         }
