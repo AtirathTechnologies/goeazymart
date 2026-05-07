@@ -1,24 +1,23 @@
 import React, { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Collapse } from 'bootstrap';
 import logo from '../assets/logo.svg';
 
 const Navbar = () => {
 
   const collapseRef = useRef(null);
+  const location = useLocation(); // current route
 
   const closeMenu = () => {
     const collapseElement = collapseRef.current;
 
     if (!collapseElement) return;
 
-    // Bootstrap instance get cheyyadam
     const bsCollapse = Collapse.getInstance(collapseElement);
 
     if (bsCollapse) {
-      bsCollapse.hide(); // smooth close
+      bsCollapse.hide();
     } else {
-      // fallback (rare case)
       collapseElement.classList.remove('show');
     }
   };
@@ -53,6 +52,15 @@ const Navbar = () => {
           ref={collapseRef}
         >
           <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+
+            {/* 👉 Show Home only when NOT on home page */}
+            {location.pathname !== "/" && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/" onClick={closeMenu}>
+                  Home
+                </Link>
+              </li>
+            )}
 
             <li className="nav-item">
               <Link className="nav-link" to="/products" onClick={closeMenu}>

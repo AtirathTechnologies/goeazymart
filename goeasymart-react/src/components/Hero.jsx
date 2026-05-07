@@ -236,7 +236,7 @@ const Hero = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeSlideUp {
           from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: none; }

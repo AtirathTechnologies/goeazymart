@@ -7,17 +7,24 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const WorldMapSection = () => {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
-  
+
   useEffect(() => {
     if (mapInstanceRef.current) return;
-    
-    const map = L.map(mapRef.current).setView([20, 0], 2);
+
+    const map = L.map(mapRef.current, {
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      touchZoom: false
+    }).setView([20, 0], 2);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; OpenStreetMap & CartoDB',
       subdomains: 'abcd',
       maxZoom: 19
     }).addTo(map);
-    
+
     const createPinIcon = () => L.divIcon({
       className: 'custom-pin-marker',
       html: '<div class="pin-icon" style="display:block; width:28px; height:28px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); position:relative; cursor:pointer; background:transparent;"></div>',
@@ -25,7 +32,7 @@ const WorldMapSection = () => {
       iconAnchor: [14, 28],
       popupAnchor: [0, -25]
     });
-    
+
     countriesData.forEach(country => {
       const marker = L.marker([country.lat, country.lng], { icon: createPinIcon() }).addTo(map);
       marker.bindPopup(`
@@ -37,7 +44,7 @@ const WorldMapSection = () => {
         </div>
       `);
     });
-    
+
     tradeRoutes.forEach(route => {
       L.polyline(route, {
         color: '#C8972B',
@@ -46,9 +53,9 @@ const WorldMapSection = () => {
         dashArray: '6, 8'
       }).addTo(map);
     });
-    
+
     mapInstanceRef.current = map;
-    
+
     return () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
@@ -56,7 +63,7 @@ const WorldMapSection = () => {
       }
     };
   }, []);
-  
+
   useEffect(() => {
     const handleQuoteFromMap = (e) => {
       const countryInput = document.getElementById('formCountry');
@@ -68,11 +75,11 @@ const WorldMapSection = () => {
       const contactSection = document.getElementById('contact');
       if (contactSection) contactSection.scrollIntoView({ behavior: 'smooth' });
     };
-    
+
     window.addEventListener('quoteFromMap', handleQuoteFromMap);
     return () => window.removeEventListener('quoteFromMap', handleQuoteFromMap);
   }, []);
-  
+
   return (
     <section className="worldmap-section py-5" id="worldmap" style={{ background: 'var(--cream)', position: 'relative' }}>
       <div className="container">
@@ -87,7 +94,7 @@ const WorldMapSection = () => {
           <h2 className="section-title mb-3" style={{ color: 'var(--gold-dark)' }}>40+ Countries <span style={{ color: 'var(--gold)' }}>Worldwide</span></h2>
           <p className="mx-auto" style={{ fontSize: '1rem', color: 'var(--text-muted)', maxWidth: '600px', lineHeight: 1.6 }}>We actively export to these markets. Click on any pin to explore our global footprint and trade routes.</p>
         </div>
-        
+
         <div className="reveal mt-5" style={{
           background: 'white',
           borderRadius: '32px',
@@ -96,7 +103,7 @@ const WorldMapSection = () => {
           border: '1px solid rgba(200, 151, 43, 0.3)'
         }}>
           <div ref={mapRef} style={{ height: '550px', width: '100%', borderRadius: '20px', zIndex: 1 }}></div>
-          
+
           <div className="d-flex align-items-center justify-content-center gap-4 flex-wrap mt-4" style={{
             fontSize: '13px',
             color: 'var(--text-muted)'
@@ -116,7 +123,7 @@ const WorldMapSection = () => {
           </div>
         </div>
       </div>
-      
+
       <style>{`
         .custom-pin-marker {
           background: transparent;
