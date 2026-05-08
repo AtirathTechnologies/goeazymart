@@ -138,11 +138,7 @@ const ProductDetails = () => {
             message += `🔹 *Type:* ${selectedGrade}%0A`;
             message += `📏 *Size:* ${selectedQty}%0A`;
 
-            const packing = selectedVariantData?.options
-                .find(o => o.size === selectedQty)
-                ?.packing.join(", ");
-
-            message += `📦 *Packing:* ${packing}%0A`;
+            message += `📦 *Packing:* ${selectedPacking}%0A`;
             message += `💰 *Price:* Negotiable%0A`;
         } else {
             message += `🔹 *Grade:* ${selectedGrade}%0A`;
