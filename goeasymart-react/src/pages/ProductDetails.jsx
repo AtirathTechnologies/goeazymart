@@ -18,7 +18,7 @@ const ProductDetails = () => {
     const navigate = useNavigate();
 
 
-    const WHATSAPP_NUMBER = "919247485871";
+    const WHATSAPP_NUMBER = "+918939396612";
 
     if (!product) {
         return <h2 className="text-center mt-5">Product not found</h2>;
