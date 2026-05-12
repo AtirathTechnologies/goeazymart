@@ -160,7 +160,7 @@ const Hero = () => {
               </div>
 
               <p className="lead text-muted mb-5" style={{ maxWidth: '520px' }}>
-                Goeasymart connects buyers and sellers across continents — delivering premium agricultural produce, food commodities, construction materials, textiles, and industrial goods with unmatched reliability.
+                Goeazymart connects buyers and sellers across continents — delivering premium agricultural produce, food commodities, construction materials, textiles, and industrial goods with unmatched reliability.
               </p>
 
               <div className="d-flex flex-wrap gap-3">
