@@ -8,15 +8,15 @@ const TestimonialsSection = () => {
   return (
     <section className="testimonials-section py-5" id="testimonials" style={{ background: '#fffdf8', color: '#111' }}>
       <div className="container" style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div className="section-tag d-inline-flex mb-4" style={{
+          background: 'rgba(255,255,255,0.08)',
+          borderRadius: '50px',
+          padding: '5px 20px',
+          color: 'var(--gold-light)'
+        }}>Testimonials</div>
+
         <div className="text-center">
-          <div className="section-tag d-inline-flex align-items-center justify-content-center" style={{
-            background: 'rgba(255,255,255,0.08)',
-            borderRadius: '50px',
-            padding: '5px 20px',
-            marginBottom: '20px',
-            color: 'var(--gold-light)'
-          }}>Testimonials</div>
-          <h2 className="section-title mb-3" style={{ color: 'var(--gold)' }}>Trusted by <span style={{ color: 'var(--gold)' }}>500+ Businesses</span></h2>
+          <h2 className="section-title mb-3" style={{ color: '#000000' }}>Trusted by <span style={{ color: 'var(--gold)' }}>500+</span> Businesses</h2>
           <p className="mx-auto" style={{ fontSize: '1rem', color: 'var(--gold)', maxWidth: '600px', lineHeight: 1.6 }}>What our B2B partners say about working with us.</p>
         </div>
         

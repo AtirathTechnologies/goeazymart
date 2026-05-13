@@ -30,7 +30,7 @@ const MarketsSection = () => {
           <h2 className="section-title">
             Markets We <span className="em">Serve</span>
           </h2>
-          <p className="section-subtitle">
+          <p className="section-subtitle mx-auto" style={{ color: 'var(--gold)' }}>
             Active trade operations across major international markets.
           </p>
         </div>

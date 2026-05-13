@@ -16,6 +16,8 @@ import './index.css';
 import SubProducts from './pages/SubProducts';
 import ProductDetails from './pages/ProductDetails';
 import VariantList from './pages/VariantList';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 // Other Pages
 const MarketsPage = () => <><MarketsSection /><Footer /></>;
@@ -39,6 +41,8 @@ function App() {
         <Route path="/process" element={<ProcessPage />} />
         <Route path="/worldmap" element={<WorldMapPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </Router>
   );

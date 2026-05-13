@@ -126,7 +126,7 @@ const Hero = () => {
         background: 'radial-gradient(ellipse 80% 60% at 70% 50%, rgba(200, 151, 43, 0.08) 0%, transparent 60%)'
       }}></div>
 
-      <div className="container h-100">
+      <div className="container h-100" style={{ position: 'relative', zIndex: 2 }}>
         <div className="row align-items-center h-100 g-4 g-lg-5">
 
           {/* Left Content */}
@@ -165,8 +165,8 @@ const Hero = () => {
 
               <div className="d-flex flex-wrap gap-3">
                 <a 
-                  href="#categories" 
-                  onClick={(e) => { e.preventDefault(); scrollToSection('categories'); }}
+                  href="#products" 
+                  onClick={(e) => { e.preventDefault(); scrollToSection('products'); }}
                   className="btn btn-lg px-5 py-3 fw-bold"
                   style={{
                     background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
@@ -240,6 +240,27 @@ const Hero = () => {
         @keyframes fadeSlideUp {
           from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: none; }
+        }
+
+        @media (max-width: 991px) {
+          .hero {
+            padding-top: 100px !important;
+            text-align: center;
+          }
+          .hero h1 {
+            font-size: 42px !important;
+          }
+          .hero p {
+            margin-left: auto;
+            margin-right: auto;
+          }
+          .hero .d-flex {
+            justify-content: center;
+          }
+          .hero-globe {
+            margin-top: 40px;
+            max-width: 320px !important;
+          }
         }
       `}</style>
     </section>

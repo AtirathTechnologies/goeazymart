@@ -76,8 +76,8 @@ const CategoriesSection = () => {
 
         <div className="section-tag text-gold-light mb-2">Our Products</div>
 
-        <h2 className="section-title">
-          150+ Commodities, <span className="em">One Partner</span>
+        <h2 className="section-title" style={{ color: '#000000' }}>
+          <span style={{ color: 'var(--gold)' }}>150+</span> Commodities, <span className="em">One Partner</span>
         </h2>
 
         <p className="section-subtitle mx-auto">

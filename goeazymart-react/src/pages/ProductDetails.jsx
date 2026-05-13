@@ -507,7 +507,7 @@ const ProductDetails = () => {
                                     {Object.entries(product.specifications || {}).map(([k, v]) => (
                                         <tr key={k}>
                                             <td className="label fw-bold text-secondary" style={{ width: '40%' }}>{k}</td>
-                                            <td>{v}</td>
+                                            <td>{(k === 'ShelfLife' && selectedVariantData?.shelfLife) ? selectedVariantData.shelfLife : v}</td>
                                         </tr>
                                     ))}
                                 </tbody>

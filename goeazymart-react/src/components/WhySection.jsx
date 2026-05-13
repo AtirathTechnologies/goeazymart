@@ -16,11 +16,11 @@ const WhySection = () => {
 
         {/* Header */}
         <div className="text-center">
-          <div className="section-tag">Why Goeasymart</div>
+          <div className="section-tag">Why Goeazymart</div>
           <h2 className="section-title">
             Trade With <span className="em">Confidence</span>
           </h2>
-          <p className="section-subtitle">
+          <p className="section-subtitle mx-auto">
             From sourcing to delivery, we handle every link in the international trade chain so you can focus on growing your business.
           </p>
         </div>

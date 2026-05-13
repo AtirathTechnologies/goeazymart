@@ -21,7 +21,7 @@ const Footer = () => {
           <div className="col-lg-6 col-md-12">
             <a href="#" className="logo d-flex align-items-center gap-3 text-decoration-none mb-4">
               <div style={{ width: '250px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={logo} alt="Goeasymart Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                <img src={logo} alt="goeazymart Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
             </a>
             <p style={{ fontSize: '14px', lineHeight: 1.6, color: '#666', maxWidth: '500px' }}>India's trusted international commodity trading company, connecting global buyers to premium quality products across 40+ countries with reliability, transparency, and speed.</p>
@@ -66,73 +66,73 @@ const Footer = () => {
           fontSize: '13px',
           gap: '16px'
         }}>
-          <span className="text-center text-md-start">© 2025 Goeasymart. All rights reserved. Any Where &amp; Any Time.</span>
+          <span className="text-center text-md-start">© 2025 goeazymart. All rights reserved. Any Where &amp; Any Time.</span>
           <div className="d-flex gap-3">
-            <a 
-              href="https://wa.me/9198XXXXXXX" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="social-btn d-flex align-items-center justify-content-center" 
-              style={{ 
-                width: '36px', 
-                height: '36px', 
-                background: 'rgba(0,0,0,0.05)', 
-                borderRadius: '8px', 
-                fontSize: '16px', 
-                transition: 'all 0.2s', 
-                textDecoration: 'none', 
+            <a
+              href="https://wa.me/9198XXXXXXX"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-btn d-flex align-items-center justify-content-center"
+              style={{
+                width: '36px',
+                height: '36px',
+                background: 'rgba(0,0,0,0.05)',
+                borderRadius: '8px',
+                fontSize: '16px',
+                transition: 'all 0.2s',
+                textDecoration: 'none',
                 color: '#25D366'  // WhatsApp green
               }}
             >
               <FaWhatsapp size={18} />
             </a>
-            <a 
-              href="https://instagram.com/yourpage" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="social-btn d-flex align-items-center justify-content-center" 
-              style={{ 
-                width: '36px', 
-                height: '36px', 
-                background: 'rgba(0,0,0,0.05)', 
-                borderRadius: '8px', 
-                fontSize: '16px', 
-                transition: 'all 0.2s', 
-                textDecoration: 'none', 
+            <a
+              href="https://instagram.com/yourpage"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-btn d-flex align-items-center justify-content-center"
+              style={{
+                width: '36px',
+                height: '36px',
+                background: 'rgba(0,0,0,0.05)',
+                borderRadius: '8px',
+                fontSize: '16px',
+                transition: 'all 0.2s',
+                textDecoration: 'none',
                 color: '#E4405F'  // Instagram pink/red
               }}
             >
               <FaInstagram size={18} />
             </a>
-            <a 
-              href="https://facebook.com/yourpage" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="social-btn d-flex align-items-center justify-content-center" 
-              style={{ 
-                width: '36px', 
-                height: '36px', 
-                background: 'rgba(0,0,0,0.05)', 
-                borderRadius: '8px', 
-                fontSize: '16px', 
-                transition: 'all 0.2s', 
-                textDecoration: 'none', 
+            <a
+              href="https://facebook.com/yourpage"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-btn d-flex align-items-center justify-content-center"
+              style={{
+                width: '36px',
+                height: '36px',
+                background: 'rgba(0,0,0,0.05)',
+                borderRadius: '8px',
+                fontSize: '16px',
+                transition: 'all 0.2s',
+                textDecoration: 'none',
                 color: '#1877F2'  // Facebook blue
               }}
             >
               <FaFacebookF size={18} />
             </a>
-            <a 
-              href="mailto:trade@goeasymart.com" 
-              className="social-btn d-flex align-items-center justify-content-center" 
-              style={{ 
-                width: '36px', 
-                height: '36px', 
-                background: 'rgba(0,0,0,0.05)', 
-                borderRadius: '8px', 
-                fontSize: '16px', 
-                transition: 'all 0.2s', 
-                textDecoration: 'none', 
+            <a
+              href="mailto:trade@goeazymart.com"
+              className="social-btn d-flex align-items-center justify-content-center"
+              style={{
+                width: '36px',
+                height: '36px',
+                background: 'rgba(0,0,0,0.05)',
+                borderRadius: '8px',
+                fontSize: '16px',
+                transition: 'all 0.2s',
+                textDecoration: 'none',
                 color: '#D44638'  // Email red
               }}
             >

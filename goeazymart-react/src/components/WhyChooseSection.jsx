@@ -9,8 +9,8 @@ const WhyChooseSection = () => {
         {/* Header */}
         <div className="section-tag mb-3 text-gold">Why Choose Us</div>
 
-        <h2 className="section-title" style={{ color: 'var(--green)' }}>
-          Built for <span> B2B Success</span>
+        <h2 className="section-title" style={{ color: '#000000' }}>
+          Built for <span style={{ color: 'var(--gold)' }}> B2B</span> Success
         </h2>
 
         <p className="mx-auto mt-2 why-subtitle">

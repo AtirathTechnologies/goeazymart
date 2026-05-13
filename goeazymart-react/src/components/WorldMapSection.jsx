@@ -9,15 +9,36 @@ const WorldMapSection = () => {
   const mapInstanceRef = useRef(null);
 
   useEffect(() => {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          // Important: Leaflet maps need invalidateSize when they become visible
+          if (mapInstanceRef.current) {
+            setTimeout(() => {
+              mapInstanceRef.current.invalidateSize();
+            }, 300);
+          }
+        }
+      });
+    }, { threshold: 0.1 });
+
+    const elements = document.querySelectorAll('.worldmap-section .reveal');
+    elements.forEach(el => revealObserver.observe(el));
+
+    return () => revealObserver.disconnect();
+  }, []);
+
+  useEffect(() => {
     if (mapInstanceRef.current) return;
 
     const map = L.map(mapRef.current, {
-      dragging: false,
+      dragging: true, // changed to true for better usability on separate page
       scrollWheelZoom: false,
-      doubleClickZoom: false,
-      boxZoom: false,
-      keyboard: false,
-      touchZoom: false
+      doubleClickZoom: true,
+      boxZoom: true,
+      keyboard: true,
+      touchZoom: true
     }).setView([20, 0], 2);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; OpenStreetMap & CartoDB',
@@ -83,16 +104,17 @@ const WorldMapSection = () => {
   return (
     <section className="worldmap-section py-5" id="worldmap" style={{ background: 'var(--cream)', position: 'relative' }}>
       <div className="container">
+        <div className="section-tag mb-3" style={{
+          background: 'rgba(200, 151, 43, 0.1)',
+          borderRadius: '50px',
+          padding: '5px 20px',
+          display: 'inline-flex',
+          color: 'var(--gold)'
+        }}>Our Reach</div>
+
         <div className="text-center mb-4">
-          <div className="section-tag d-inline-flex align-items-center justify-content-center mb-3" style={{
-            background: 'rgba(200, 151, 43, 0.1)',
-            borderRadius: '50px',
-            padding: '5px 20px',
-            display: 'inline-flex',
-            color: 'var(--gold)'
-          }}>Our Reach</div>
-          <h2 className="section-title mb-3" style={{ color: 'var(--gold-dark)' }}>40+ Countries <span style={{ color: 'var(--gold)' }}>Worldwide</span></h2>
-          <p className="mx-auto" style={{ fontSize: '1rem', color: 'var(--text-muted)', maxWidth: '600px', lineHeight: 1.6 }}>We actively export to these markets. Click on any pin to explore our global footprint and trade routes.</p>
+          <h2 className="section-title mb-3" style={{ color: '#000000' }}><span style={{ color: 'var(--gold)' }}>40+</span> Countries <span style={{ color: 'var(--gold)' }}>Worldwide</span></h2>
+          <p className="mx-auto text-center" style={{ fontSize: '1rem', color: 'var(--text-muted)', maxWidth: '600px', lineHeight: 1.6 }}>We actively export to these markets. Click on any pin to explore our global footprint and trade routes.</p>
         </div>
 
         <div className="reveal mt-5" style={{
@@ -102,7 +124,7 @@ const WorldMapSection = () => {
           padding: '20px',
           border: '1px solid rgba(200, 151, 43, 0.3)'
         }}>
-          <div ref={mapRef} style={{ height: '550px', width: '100%', borderRadius: '20px', zIndex: 1 }}></div>
+          <div ref={mapRef} className="map-container" style={{ height: '550px', width: '100%', borderRadius: '20px', zIndex: 1 }}></div>
 
           <div className="d-flex align-items-center justify-content-center gap-4 flex-wrap mt-4" style={{
             fontSize: '13px',
@@ -149,16 +171,21 @@ const WorldMapSection = () => {
           background: #C8972B;
         }
         
+        .map-container {
+          height: 550px;
+          width: 100%;
+        }
+        
         /* Bootstrap responsive overrides */
         @media (max-width: 992px) {
-          .worldmap-section .reveal div[style*="height: 550px"] {
+          .map-container {
             height: 450px !important;
           }
         }
         
         @media (max-width: 768px) {
-          .worldmap-section .reveal div[style*="height: 550px"] {
-            height: 400px !important;
+          .map-container {
+            height: 380px !important;
           }
           
           .section-title {
@@ -167,8 +194,8 @@ const WorldMapSection = () => {
         }
         
         @media (max-width: 576px) {
-          .worldmap-section .reveal div[style*="height: 550px"] {
-            height: 350px !important;
+          .map-container {
+            height: 300px !important;
           }
           
           .worldmap-section .reveal {

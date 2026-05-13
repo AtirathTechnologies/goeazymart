@@ -13,10 +13,10 @@ const ProcessSection = () => {
       <div className="container">
 
         {/* Header */}
+        <div className="section-tag">
+          Trade Process
+        </div>
         <div className="text-center">
-          <div className="section-tag d-inline-flex justify-content-center">
-            Trade Process
-          </div>
           <h2 className="section-title">
             How <span className="em">It Works</span>
           </h2>

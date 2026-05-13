@@ -46,30 +46,27 @@ const SubProducts = () => {
                         key={index}
                         className="card-wrapper fade-in"
                         style={{ animationDelay: `${index * 0.05}s` }}
+                        onClick={() => {
+                            if (product.variants) {
+                                // processed foods → go to Variant page
+                                navigate(`/product/${product.id}`);
+                            } else {
+                                // rice → direct details page
+                                navigate(`/product/${product.id}/details`);
+                            }
+                        }}
                     >
-                        <div
-                            className="product-card"
-                            onClick={() => {
-                                if (product.variants) {
-                                    // processed foods → go to Variant page
-                                    navigate(`/product/${product.id}`);
-                                } else {
-                                    // rice → direct details page
-                                    navigate(`/product/${product.id}/details`);
-                                }
-                            }}
-                        >
+                        <div className="product-card">
                             <div className="image-box">
                                 <img
                                     src={product.banner || product.images?.[0]}
                                     alt={product.name}
                                 />
                             </div>
+                        </div>
 
-                            <div className="overlay">
-                                <h5>{product.icon} {product.name}</h5>
-                            </div>
-
+                        <div className="product-info">
+                            <h5>{product.icon} {product.name}</h5>
                         </div>
                     </div>
                 ))}

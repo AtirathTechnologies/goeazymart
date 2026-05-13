@@ -149,13 +149,14 @@ const ContactSection = () => {
   return (
     <section className="contact-section py-5" id="contact" style={{ background: '#ffffff', color: '#111' }}>
       <div className="container">
+        <div className="section-tag d-inline-flex mb-3" style={{
+          background: 'rgba(200, 151, 43, 0.1)',
+          borderRadius: '50px',
+          padding: '5px 20px',
+          color: 'var(--gold-light)'
+        }}>Get In Touch</div>
+
         <div className="text-center mb-5">
-          <div className="section-tag d-inline-flex align-items-center justify-content-center mb-3" style={{
-            background: 'rgba(200, 151, 43, 0.1)',
-            borderRadius: '50px',
-            padding: '5px 20px',
-            color: 'var(--gold-light)'
-          }}>Get In Touch</div>
           <h2 className="section-title" style={{ color: 'var(--black)' }}>Request a <span style={{ color: 'var(--gold)' }}>Quote</span></h2>
         </div>
 

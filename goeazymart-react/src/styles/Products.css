@@ -49,6 +49,12 @@
 /* CARD WRAPPER */
 .card-wrapper {
   perspective: 1000px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.card-wrapper:hover {
+  transform: translateY(-5px);
 }
 
 /* CARD FIX (MAIN ISSUE SOLVED HERE 🔥) */
@@ -58,17 +64,42 @@
   height: 240px;
   border-radius: 16px;
   overflow: hidden;
-  background: #f8f8f8; /* add this */
-  display: flex;        /* 🔥 important */
-  align-items: center;  /* center vertically */
-  justify-content: center; /* center horizontally */
+  background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.card-wrapper:hover .product-card {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
 }
 
 .product-card img {
-  max-width: 90%;   /* 🔥 instead of width:100% */
-  max-height: 90%;  /* 🔥 instead of height:100% */
-  object-fit: contain; /* no crop */
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
 }
+
+/* PRODUCT INFO BELOW CARD */
+.product-info {
+  padding: 12px 5px;
+  text-align: center;
+}
+
+.product-info h5 {
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.card-wrapper:hover .product-info h5 {
+  color: #C8972B;
+}
+
 /* ICON */
 .product-icon {
   position: absolute;
@@ -102,7 +133,7 @@
   }
 }
 
-/* OVERLAY */
+/* OVERLAY (Keeping for other pages if needed) */
 .overlay {
   position: absolute;
   bottom: 0;

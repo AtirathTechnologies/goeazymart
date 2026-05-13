@@ -912,24 +912,18 @@ export const products = [
     // ✅ ADD variants
 
     variants: [
-      // {
-      //   name: "Chunk YF in Soy Oil",
-      //   image: tunaImg10,
-      //   images: [tunaImg10],
-      //   options: [
-      //     { size: "160g", packing: ["24 ezo", "48 ezo"] }
-      //   ]
-      // },
-      // {
-      //   name: "Chunk YF in Spring Water",
-      //   image: tunaImg5,
-      //   images: [tunaImg5],
-      //   options: [
-      //     { size: "160g", packing: ["24 ezo", "48 ezo"] }
-      //   ]
-      // },
+      {
+        name: "YF Tuna chunks in Spring Water",
+        shelfLife: "3 Years",
+        image: tunaImg5,
+        images: [tunaImg5],
+        options: [
+          { size: "160g", packing: ["24 ezo", "48 ezo"] }
+        ]
+      },
       {
         name: "Chilli Chunk YF in Soy Oil",
+        shelfLife: "5 Years",
         image: tunaImg1,
         images: [tunaImg1],
         options: [
@@ -938,7 +932,8 @@ export const products = [
         ]
       },
       {
-        name: "Chunk YF in Olive Oil",
+        name: "YF Tuna chunks in Olive Oil",
+        shelfLife: "5 Years",
         image: tunaImg2,
         images: [tunaImg2],
         options: [
@@ -947,55 +942,16 @@ export const products = [
       },
       {
         name: "Chunk YF in Lemon & Pepper",
+        shelfLife: "5 Years",
         image: tunaImg3,
         images: [tunaImg3],
         options: [
           { size: "160g", packing: ["24 ezo"] }
         ]
       },
-      // {
-      //   name: "Chunk SJ in Lemon & Pepper",
-      //   image: tunaImg6,
-      //   images: [tunaImg6],
-      //   options: [
-      //     { size: "160g", packing: ["48 ezo"] }
-      //   ]
-      // },
-      // {
-      //   name: "Spicy YF Tuna Delight",
-      //   image: tunaImg9,
-      //   images: [tunaImg9],
-      //   options: [
-      //     { size: "160g", packing: ["24 ezo"] }
-      //   ]
-      // },
-      // {
-      //   name: "Chunk Skipjack in Soy Oil",
-      //   image: tunaImg4,
-      //   images: [tunaImg4],
-      //   options: [
-      //     { size: "160g", packing: ["24 ezo", "48 ezo"] }
-      //   ]
-      // },
-      // {
-      //   name: "Chunk SJ in Spring Water",
-      //   image: tunaImg7,
-      //   images: [tunaImg7],
-      //   options: [
-      //     { size: "160g", packing: ["24 ezo", "48 ezo"] },
-      //     { size: "100g", packing: ["12 ezo", "48 ezo"] }
-      //   ]
-      // },
-      // {
-      //   name: "Chunk SJ in Olive Oil",
-      //   image: tunaImg8,
-      //   images: [tunaImg8],
-      //   options: [
-      //     { size: "100g", packing: ["12 ezo", "48 ezo"] }
-      //   ]
-      // },
       {
         name: "Tuna in Vegetable oil",
+        shelfLife: "5 Years",
         image: tunaImg11,
         images: [tunaImg11],
         options: [
@@ -1015,7 +971,7 @@ export const products = [
 
     specifications: {
       Protein: "High (20g+ per 100g)",
-      ShelfLife: "24 Months",
+      ShelfLife: "5 Years",
       Packaging: "Tin cans (100g, 160g, 250g, 400g)",
       Origin: "Solomon Islands",
       Preservation: "Sealed in oil / water",
@@ -1049,19 +1005,9 @@ export const products = [
     description: "High-quality canned tuna from Solomon Islands, packed in soy oil with multiple variants like chunks, flakes, and curry flavors. Ideal for sandwiches, ready meals, and export-grade supply.",
 
     variants: [
-
-      // 🔹 100 x 48
-      // {
-      //   name: "Special Chunk in Soy Oil",
-      //   image: solomonImg1,
-      //   images: [solomonImg1],
-      //   options: [
-      //     { size: "100g", packing: ["48 ezo"] },
-      //     { size: "160g", packing: ["24 ezo", "48 ezo"] }
-      //   ]
-      // },
       {
         name: "Sandwich Flakes YF in Soy Oil",
+        shelfLife: "5 Years",
         image: solomonImg2,
         images: [solomonImg2],
         options: [
@@ -1071,6 +1017,7 @@ export const products = [
       },
       {
         name: "White Tuna Flakes in Soy Oil",
+        shelfLife: "5 Years",
         image: solomonImg3,
         images: [solomonImg3],
         options: [
@@ -1082,6 +1029,7 @@ export const products = [
       },
       {
         name: "RedMeat Tuna in Soy Oil",
+        shelfLife: "5 Years",
         image: solomonImg4,
         images: [solomonImg4],
         options: [
@@ -1089,15 +1037,9 @@ export const products = [
           { size: "160g", packing: ["24 ezo", "48 ezo"] },
           { size: "400g", packing: ["24 ezo"] }
         ]
-      },
-      // {
-      //   name: "Curry Flakes SJ in Soy Oil",
-      //   image: solomonImg5,
-      //   images: [solomonImg5],
-      //   options: [
-      //     { size: "160g", packing: ["24 ezo", "48 ezo"] }
       //   ]
       // },
+      }
 
     ],
 
@@ -1112,7 +1054,7 @@ export const products = [
 
     specifications: {
       Protein: "High (20g+ per 100g)",
-      ShelfLife: "24 Months",
+      ShelfLife: "5 Years",
       Packaging: "Tin cans (100g, 160g, 250g, 400g)",
       Origin: "Solomon Islands",
       Preservation: "Soy Oil",

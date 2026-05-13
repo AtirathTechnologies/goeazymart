@@ -24,14 +24,14 @@ const Navbar = () => {
 
   return (
     <nav className="navbar navbar-expand-lg bg-white sticky-top shadow-sm">
-      <div className="container">
+      <div className="container-fluid px-lg-5">
 
         {/* Logo */}
         <Link className="navbar-brand d-flex align-items-center" to="/" onClick={closeMenu}>
           <img
             src={logo}
             alt="Logo"
-            style={{ height: '80px', objectFit: 'contain' }}
+            style={{ height: '55px', objectFit: 'contain' }}
           />
         </Link>
 
@@ -83,6 +83,29 @@ const Navbar = () => {
             <li className="nav-item">
               <Link className="nav-link" to="/worldmap" onClick={closeMenu}>
                 Reach
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className="nav-link" to="/login" onClick={closeMenu}>
+                Login
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link
+                className="btn ms-lg-2"
+                to="/signup"
+                onClick={closeMenu}
+                style={{
+                  border: '1px solid var(--gold)',
+                  color: 'var(--gold)',
+                  fontWeight: '600',
+                  borderRadius: '8px',
+                  padding: '8px 18px'
+                }}
+              >
+                Sign Up
               </Link>
             </li>
 

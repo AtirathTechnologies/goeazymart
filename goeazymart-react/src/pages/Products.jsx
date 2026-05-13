@@ -21,16 +21,14 @@ const Products = () => {
             key={cat.id}
             className="card-wrapper fade-in"
             style={{ animationDelay: `${index * 0.05}s` }}
+            onClick={() => navigate(`/products/${cat.id}`)}
           >
-            <div
-              className="product-card"
-              onClick={() => navigate(`/products/${cat.id}`)} // ✅ route change
-            >
+            <div className="product-card">
               <img src={cat.image} alt={cat.label} />
+            </div>
 
-              <div className="overlay">
-                <h5>{cat.label}</h5>
-              </div>
+            <div className="product-info">
+              <h5>{cat.label}</h5>
             </div>
           </div>
         ))}
