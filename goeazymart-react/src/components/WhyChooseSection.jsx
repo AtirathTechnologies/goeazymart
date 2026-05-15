@@ -1,5 +1,12 @@
 import React from 'react';
-import { whyChooseData } from '../data/productsData';
+const whyChooseData = [
+  { icon: '🚀', title: 'Fast & Reliable Logistics', desc: 'Multi-modal shipping with real-time tracking, customs clearance support, and door-step delivery across 40+ countries.', bg: 'rgba(45,106,79,0.2)', border: '#2D6A4F' },
+  { icon: '📋', title: 'End-to-End Documentation', desc: 'We handle all export paperwork: phytosanitary certificates, COO, bill of lading, insurance, and LC documentation.', bg: 'rgba(200,151,43,0.2)', border: '#C8972B' },
+  { icon: '🔬', title: 'Quality Control Labs', desc: 'In-house testing for purity, moisture, adulteration, and microbiological parameters. Third-party SGS/GeoChem support.', bg: 'rgba(82,183,136,0.2)', border: '#52B788' },
+  { icon: '💎', title: 'Competitive B2B Pricing', desc: 'Direct farm & factory sourcing eliminates middlemen. Get the best FOB/CIF rates with flexible payment terms.', bg: 'rgba(200,151,43,0.2)', border: '#E8B84B' },
+  { icon: '🌿', title: 'Sustainable Sourcing', desc: 'Ethically sourced agricultural products with traceability. Supporting fair trade and eco-friendly packaging.', bg: 'rgba(45,106,79,0.2)', border: '#2D6A4F' },
+  { icon: '🤝', title: 'Dedicated Account Managers', desc: '24/7 dedicated trade expert for every client — from first inquiry to repeat orders, we’re your growth partner.', bg: 'rgba(200,151,43,0.2)', border: '#C8972B' }
+];
 
 const WhyChooseSection = () => {
   return (

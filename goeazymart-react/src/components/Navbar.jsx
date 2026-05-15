@@ -2,8 +2,10 @@ import React, { useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Collapse } from 'bootstrap';
 import logo from '../assets/logo.svg';
+import { useCart } from '../context/CartContext';
 
 const Navbar = () => {
+  const { getCartCount } = useCart();
 
   const collapseRef = useRef(null);
   const location = useLocation(); // current route
@@ -35,6 +37,18 @@ const Navbar = () => {
           />
         </Link>
 
+        {/* Cart Icon (Mobile) */}
+        <div className="d-flex align-items-center d-lg-none ms-auto me-3">
+          <Link className="nav-link position-relative" to="/cart" onClick={closeMenu}>
+            <span style={{ fontSize: '1.4rem' }}>🛒</span>
+            {getCartCount() > 0 && (
+              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '0.7rem' }}>
+                {getCartCount()}
+              </span>
+            )}
+          </Link>
+        </div>
+
         {/* Hamburger */}
         <button
           className="navbar-toggler"
@@ -52,6 +66,7 @@ const Navbar = () => {
           ref={collapseRef}
         >
           <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+
 
             {/* 👉 Show Home only when NOT on home page */}
             {location.pathname !== "/" && (
@@ -85,6 +100,19 @@ const Navbar = () => {
                 Reach
               </Link>
             </li>
+
+            <li className="nav-item d-none d-lg-block">
+              <Link className="nav-link position-relative" to="/cart" onClick={closeMenu}>
+                <span style={{ fontSize: '1.2rem' }}>🛒</span>
+                {getCartCount() > 0 && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '0.65rem' }}>
+                    {getCartCount()}
+                  </span>
+                )}
+              </Link>
+            </li>
+
+
 
             <li className="nav-item">
               <Link className="nav-link" to="/login" onClick={closeMenu}>

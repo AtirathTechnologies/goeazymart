@@ -1,12 +1,12 @@
 // src/pages/SubProducts.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { products, categories } from '../data/productsData';
-import '../styles/Products.css';
+import { useProducts } from '../context/ProductContext';
 
 const SubProducts = () => {
     const { categoryId } = useParams();
     const navigate = useNavigate();
+    const { products, categories, loading } = useProducts();
 
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [pageTitle, setPageTitle] = useState('');
@@ -17,10 +17,14 @@ const SubProducts = () => {
     };
 
     useEffect(() => {
-        const filtered = products.filter(p => p.cat === categoryId);
-        setFilteredProducts(filtered);
-        setPageTitle(getCategoryLabel(categoryId));
-    }, [categoryId]);
+        if (!loading) {
+            const filtered = products.filter(p => p.cat === categoryId);
+            setFilteredProducts(filtered);
+            setPageTitle(getCategoryLabel(categoryId));
+        }
+    }, [categoryId, products, loading]);
+
+    if (loading) return <div className="text-center py-5">Loading...</div>;
 
     const getCategoryImage = (catId) => {
         const category = categories.find(c => c.id === catId);

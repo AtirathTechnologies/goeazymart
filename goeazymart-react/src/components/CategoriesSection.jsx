@@ -1,9 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { categories } from '../data/productsData';
+import { useProducts } from '../context/ProductContext';
 
 const CategoriesSection = () => {
   const navigate = useNavigate();
+  const { categories, loading } = useProducts();
+
+  if (loading) return null;
 
   // const categories = [
   //   {

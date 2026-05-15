@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { db } from '../firebase';
+import { ref, push, set } from 'firebase/database';
 
 const ContactSection = () => {
   const [formData, setFormData] = useState({
@@ -92,18 +94,20 @@ const ContactSection = () => {
 
     setIsSubmitting(true);
 
-    // Simulate API call (replace with actual API endpoint)
     try {
       // Prepare data for submission
       const submissionData = {
         ...formData,
-        submittedAt: new Date().toISOString()
+        submittedAt: new Date().toISOString(),
+        status: 'pending'
       };
 
-      console.log('Submitting inquiry:', submissionData);
+      console.log('Submitting inquiry to Firebase:', submissionData);
 
-      // Simulate network request
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Save to Firebase Realtime Database
+      const inquiriesRef = ref(db, 'inquiries');
+      const newInquiryRef = push(inquiriesRef);
+      await set(newInquiryRef, submissionData);
 
       // Success message
       setSubmitMessage({
@@ -178,7 +182,7 @@ const ContactSection = () => {
               <div style={{ width: '40px', height: '40px', background: 'rgba(200, 151, 43, 0.12)', border: '1px solid rgba(200, 151, 43, 0.25)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>📞</div>
               <div>
                 <strong style={{ display: 'block', color: 'var(--gold-light)', fontSize: '13px', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '3px' }}>WhatsApp / Phone</strong>
-                <span style={{ color: '#555' }}>+91 91767670908</span>
+                <span style={{ color: '#555' }}>+91 767670908</span>
               </div>
             </div>
 

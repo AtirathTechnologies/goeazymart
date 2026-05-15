@@ -1,11 +1,15 @@
 // src/pages/Products.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { categories } from '../data/productsData';
+import { useProducts } from '../context/ProductContext';
+
 import '../styles/Products.css';
 
 const Products = () => {
   const navigate = useNavigate();
+  const { categories, loading } = useProducts();
+
+  if (loading) return <div className="text-center py-5">Loading Products...</div>;
 
   return (
     <div className="products-page">

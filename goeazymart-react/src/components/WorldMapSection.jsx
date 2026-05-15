@@ -1,6 +1,69 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
-import { countriesData, tradeRoutes } from '../data/productsData';
+const countriesData = [
+  { name: "India", lat: 20.5937, lng: 78.9629, flag: "🇮🇳", region: "South Asia" },
+  { name: "UAE", lat: 23.4241, lng: 53.8478, flag: "🇦🇪", region: "Middle East" },
+  { name: "Saudi Arabia", lat: 23.8859, lng: 45.0792, flag: "🇸🇦", region: "Middle East" },
+  { name: "Oman", lat: 21.4735, lng: 55.9754, flag: "🇴🇲", region: "Middle East" },
+  { name: "Qatar", lat: 25.3548, lng: 51.1839, flag: "🇶🇦", region: "Middle East" },
+  { name: "Kuwait", lat: 29.3117, lng: 47.4818, flag: "🇰🇼", region: "Middle East" },
+  { name: "Bangladesh", lat: 23.6850, lng: 90.3563, flag: "🇧🇩", region: "South Asia" },
+  { name: "Sri Lanka", lat: 7.8731, lng: 80.7718, flag: "🇱🇰", region: "South Asia" },
+  { name: "Malaysia", lat: 4.2105, lng: 101.9758, flag: "🇲🇾", region: "Southeast Asia" },
+  { name: "Indonesia", lat: -0.7893, lng: 113.9213, flag: "🇮🇩", region: "Southeast Asia" },
+  { name: "Vietnam", lat: 14.0583, lng: 108.2772, flag: "🇻🇳", region: "Southeast Asia" },
+  { name: "Philippines", lat: 12.8797, lng: 121.7740, flag: "🇵🇭", region: "Southeast Asia" },
+  { name: "Thailand", lat: 15.8700, lng: 100.9925, flag: "🇹🇭", region: "Southeast Asia" },
+  { name: "Singapore", lat: 1.3521, lng: 103.8198, flag: "🇸🇬", region: "Southeast Asia" },
+  { name: "Kenya", lat: -1.2864, lng: 36.8172, flag: "🇰🇪", region: "Africa" },
+  { name: "Tanzania", lat: -6.3690, lng: 34.8888, flag: "🇹🇿", region: "Africa" },
+  { name: "Egypt", lat: 26.8206, lng: 30.8025, flag: "🇪🇬", region: "Africa" },
+  { name: "Nigeria", lat: 9.0820, lng: 8.6753, flag: "🇳🇬", region: "Africa" },
+  { name: "South Africa", lat: -30.5595, lng: 22.9375, flag: "🇿🇦", region: "Africa" },
+  { name: "United Kingdom", lat: 51.5074, lng: -0.1278, flag: "🇬🇧", region: "Europe" },
+  { name: "Germany", lat: 51.1657, lng: 10.4515, flag: "🇩🇪", region: "Europe" },
+  { name: "Netherlands", lat: 52.1326, lng: 5.2913, flag: "🇳🇱", region: "Europe" },
+  { name: "France", lat: 46.2276, lng: 2.2137, flag: "🇫🇷", region: "Europe" },
+  { name: "Italy", lat: 41.8719, lng: 12.5674, flag: "🇮🇹", region: "Europe" },
+  { name: "Spain", lat: 40.4637, lng: -3.7492, flag: "🇪🇸", region: "Europe" },
+  { name: "USA", lat: 37.0902, lng: -95.7129, flag: "🇺🇸", region: "North America" },
+  { name: "Canada", lat: 56.1304, lng: -106.3468, flag: "🇨🇦", region: "North America" },
+  { name: "Mexico", lat: 23.6345, lng: -102.5528, flag: "🇲🇽", region: "North America" },
+  { name: "Brazil", lat: -14.2350, lng: -51.9253, flag: "🇧🇷", region: "South America" },
+  { name: "Australia", lat: -25.2744, lng: 133.7751, flag: "🇦🇺", region: "Oceania" },
+  { name: "Nepal", lat: 28.3949, lng: 84.1240, flag: "🇳🇵", region: "South Asia" },
+  { name: "Maldives", lat: 3.2028, lng: 73.2207, flag: "🇲🇻", region: "South Asia" },
+  { name: "Turkey", lat: 38.9637, lng: 35.2433, flag: "🇹🇷", region: "Middle East" },
+  { name: "Jordan", lat: 30.5852, lng: 36.2384, flag: "🇯🇴", region: "Middle East" },
+  { name: "Ethiopia", lat: 9.1450, lng: 40.4897, flag: "🇪🇹", region: "Africa" },
+  { name: "Uganda", lat: 1.3733, lng: 32.2903, flag: "🇺🇬", region: "Africa" },
+  { name: "Ghana", lat: 7.9465, lng: -1.0232, flag: "🇬🇭", region: "Africa" },
+  { name: "Mauritius", lat: -20.3484, lng: 57.5522, flag: "🇲🇺", region: "Africa" },
+  { name: "Pakistan", lat: 30.3753, lng: 69.3451, flag: "🇵🇰", region: "South Asia" }
+];
+
+const tradeRoutes = [
+  [[20.5937, 78.9629], [23.4241, 53.8478]],
+  [[20.5937, 78.9629], [23.8859, 45.0792]],
+  [[20.5937, 78.9629], [23.6850, 90.3563]],
+  [[20.5937, 78.9629], [7.8731, 80.7718]],
+  [[20.5937, 78.9629], [4.2105, 101.9758]],
+  [[20.5937, 78.9629], [-0.7893, 113.9213]],
+  [[20.5937, 78.9629], [14.0583, 108.2772]],
+  [[20.5937, 78.9629], [15.8700, 100.9925]],
+  [[23.4241, 53.8478], [26.8206, 30.8025]],
+  [[26.8206, 30.8025], [-1.2864, 36.8172]],
+  [[-1.2864, 36.8172], [-6.3690, 34.8888]],
+  [[20.5937, 78.9629], [51.5074, -0.1278]],
+  [[51.5074, -0.1278], [51.1657, 10.4515]],
+  [[51.1657, 10.4515], [52.1326, 5.2913]],
+  [[20.5937, 78.9629], [37.0902, -95.7129]],
+  [[37.0902, -95.7129], [56.1304, -106.3468]],
+  [[20.5937, 78.9629], [-14.2350, -51.9253]],
+  [[20.5937, 78.9629], [-25.2744, 133.7751]],
+  [[20.5937, 78.9629], [28.3949, 84.1240]],
+  [[23.4241, 53.8478], [38.9637, 35.2433]]
+];
 import 'leaflet/dist/leaflet.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 

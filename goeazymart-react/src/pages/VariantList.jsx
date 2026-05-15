@@ -1,13 +1,17 @@
 import React from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { products } from "../data/productsData";
+import { useProducts } from "../context/ProductContext";
+
 import '../styles/Products.css';
 
 const VariantList = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const { products, loading } = useProducts();
 
   const product = products.find(p => p.id === productId);
+
+  if (loading) return <div className="text-center py-5">Loading...</div>;
 
   if (!product) return <h2>Product not found</h2>;
 

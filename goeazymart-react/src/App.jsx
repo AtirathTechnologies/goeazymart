@@ -25,26 +25,36 @@ const ProcessPage = () => <><ProcessSection /><Footer /></>;
 const WorldMapPage = () => <><WorldMapSection /><Footer /></>;
 const ContactPage = () => <><ContactSection /><Footer /></>;
 
+import { CartProvider } from './context/CartContext';
+import { ProductProvider } from './context/ProductContext';
+
+import Cart from './pages/Cart';
+
 function App() {
   return (
-    <Router>
-      <Navbar />
+    <ProductProvider>
+      <CartProvider>
+        <Router>
+        <Navbar />
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/products/:categoryId" element={<SubProducts />} />
-        <Route path="/product/:productId" element={<VariantList />} />
-        <Route path="/product/:productId/details" element={<ProductDetails />} />
-        <Route path="/product/:productId/:variantName" element={<ProductDetails />} />
-        <Route path="/markets" element={<MarketsPage />} />
-        <Route path="/process" element={<ProcessPage />} />
-        <Route path="/worldmap" element={<WorldMapPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-      </Routes>
-    </Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/products/:categoryId" element={<SubProducts />} />
+          <Route path="/product/:productId" element={<VariantList />} />
+          <Route path="/product/:productId/details" element={<ProductDetails />} />
+          <Route path="/product/:productId/:variantName" element={<ProductDetails />} />
+          <Route path="/markets" element={<MarketsPage />} />
+          <Route path="/process" element={<ProcessPage />} />
+          <Route path="/worldmap" element={<WorldMapPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/cart" element={<Cart />} />
+        </Routes>
+      </Router>
+    </CartProvider>
+  </ProductProvider>
   );
 }
 
