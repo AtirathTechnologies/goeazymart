@@ -6,6 +6,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/ProductDetails.css';
 
 import { useCart } from '../context/CartContext';
+import { ref, get, set } from 'firebase/database';
+import { db } from '../firebase';
 
 const ProductDetails = () => {
     const { addToCart } = useCart();
@@ -22,14 +24,7 @@ const ProductDetails = () => {
 
     const navigate = useNavigate();
 
-    if (loading) return <div className="text-center py-5">Loading...</div>;
-
-
     const WHATSAPP_NUMBER = "+918939396612";
-
-    if (!product) {
-        return <h2 className="text-center mt-5">Product not found</h2>;
-    }
 
     const getCategoryImage = (catId) => {
         const category = categories.find(c => c.id === catId);
@@ -57,36 +52,38 @@ const ProductDetails = () => {
     };
 
     const defaultImages = [
-        getCategoryImage(product.cat),
-        getCategoryImage(product.cat),
-        getCategoryImage(product.cat)
+        getCategoryImage(product?.cat),
+        getCategoryImage(product?.cat),
+        getCategoryImage(product?.cat)
     ];
 
-    const images = product.variants
-        ? selectedVariantData?.images || [selectedVariantData?.image]
-        : (product.images?.length ? product.images : defaultImages);
-    const banner = product.banner || images[0];
+    const images = product
+        ? (product.variants
+            ? selectedVariantData?.images || [selectedVariantData?.image]
+            : (product.images?.length ? product.images : defaultImages))
+        : [];
+    const banner = product?.banner || images[0];
 
     // ✅ STATES
     const [selectedGrade, setSelectedGrade] = useState(() => {
         if (decodedVariant) return decodedVariant;
-        if (product.variants && product.variants.length > 0) return product.variants[0].name;
-        return product.grades?.[0];
+        if (product?.variants && product.variants.length > 0) return product.variants[0].name;
+        return product?.grades?.[0];
     });
 
     const [selectedQty, setSelectedQty] = useState(() => {
         if (selectedVariantData) return selectedVariantData.options?.[0]?.size;
-        if (product.variants && product.variants.length > 0) return product.variants[0].options?.[0]?.size;
-        return product.quantities?.[0];
+        if (product?.variants && product.variants.length > 0) return product.variants[0].options?.[0]?.size;
+        return product?.quantities?.[0];
     });
 
     const [selectedPacking, setSelectedPacking] = useState(() => {
         if (selectedVariantData) return selectedVariantData.options?.[0]?.packing?.[0];
-        if (product.variants && product.variants.length > 0) return product.variants[0].options?.[0]?.packing?.[0];
+        if (product?.variants && product.variants.length > 0) return product.variants[0].options?.[0]?.packing?.[0];
         return null;
     });
 
-    const [selectedImage, setSelectedImage] = useState(images[0]); // correct
+    const [selectedImage, setSelectedImage] = useState(() => images[0]); // correct
 
     const [reviewText, setReviewText] = useState("");
     const [reviewRating, setReviewRating] = useState(5);
@@ -109,13 +106,22 @@ const ProductDetails = () => {
     };
 
     useEffect(() => {
+        if (!product) return;
         const timer = setTimeout(checkScroll, 100);
         window.addEventListener('resize', checkScroll);
         return () => {
             window.removeEventListener('resize', checkScroll);
             clearTimeout(timer);
         };
-    }, [images, selectedImage]);
+    }, [images, selectedImage, product]);
+
+    useEffect(() => {
+        if (product && product.name) {
+            document.title = decodedVariant 
+                ? `${product.name} - ${decodedVariant} | Goeazymart`
+                : `${product.name} | Goeazymart`;
+        }
+    }, [product, decodedVariant]);
 
     const scrollThumbnails = (direction) => {
         if (thumbRef.current) {
@@ -129,6 +135,7 @@ const ProductDetails = () => {
     };
 
     useEffect(() => {
+        if (!product) return;
         if (product.variants) {
             setSelectedGrade(decodedVariant);
 
@@ -143,10 +150,10 @@ const ProductDetails = () => {
 
         setSelectedImage(images[0]);
 
-    }, [productId, variantName]);
+    }, [productId, variantName, product]);
 
     useEffect(() => {
-        if (!images || images.length === 0 || showModal) return;
+        if (!product || !images || images.length === 0 || showModal) return;
 
         let index = 0;
 
@@ -158,30 +165,43 @@ const ProductDetails = () => {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [images, showModal, pauseSlider]);
+    }, [images, showModal, pauseSlider, product]);
+
+    useEffect(() => {
+        if (showModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [showModal]);
 
     let relatedProducts = [];
 
-    if (product.variants) {
-        // Show other variants of the SAME product
-        relatedProducts = product.variants
-            .filter(v => v.name !== decodedVariant)
-            .map(v => ({
-                id: product.id,
-                name: v.name,
-                image: v.image || v.images?.[0],
-                isVariant: true,
-                cat: product.cat
-            }));
-    } else {
-        // Regular products: show same category
-        relatedProducts = products
-            .filter(p => p.cat === product.cat && p.id !== product.id);
-    }
+    if (product) {
+        if (product.variants) {
+            // Show other variants of the SAME product
+            relatedProducts = product.variants
+                .filter(v => v.name !== decodedVariant)
+                .map(v => ({
+                    id: product.id,
+                    name: v.name,
+                    image: v.image || v.images?.[0],
+                    isVariant: true,
+                    cat: product.cat
+                }));
+        } else {
+            // Regular products: show same category
+            relatedProducts = products
+                .filter(p => p.cat === product.cat && p.id !== product.id);
+        }
 
-    relatedProducts = relatedProducts
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 4);
+        relatedProducts = relatedProducts
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 4);
+    }
 
     // ✅ ACTIONS
     const handleAddToCart = () => {
@@ -199,7 +219,88 @@ const ProductDetails = () => {
         alert(`${product.name} added to cart! 🛒`);
     };
 
-    const handleOrderNow = () => {
+    const handleOrderNow = async () => {
+        const storedUser = localStorage.getItem('user');
+        let loggedInUser = null;
+        if (storedUser) {
+            try {
+                loggedInUser = JSON.parse(storedUser);
+            } catch (e) {
+                console.error("Error parsing user from localStorage:", e);
+            }
+        }
+
+        if (!loggedInUser) {
+            alert("Please login first to place an order!");
+            navigate('/login', { state: { from: window.location.pathname } });
+            return;
+        }
+
+        const customerName = loggedInUser.name || loggedInUser.username || "Guest User";
+        const customerEmail = loggedInUser.email || "guest@goeazymart.com";
+        const customerPhone = loggedInUser.phone || "N/A";
+        const customerAddress = loggedInUser.address || "N/A";
+        const date = new Date().toISOString().split("T")[0];
+        const totalAmount = getPrice() ? parseFloat(getPrice()) : 0;
+        
+        let itemsStr = product.name;
+        if (product.variants) {
+            itemsStr += ` (${selectedGrade} - ${selectedQty} - ${selectedPacking})`;
+        } else {
+            itemsStr += ` (${selectedGrade} - ${selectedQty})`;
+        }
+
+        let nextId = `order-${Date.now()}`;
+        try {
+            const ordersRef = ref(db, 'orders');
+            const ordersSnap = await get(ordersRef);
+            if (ordersSnap.exists()) {
+                const existingOrders = ordersSnap.val();
+                const keys = Object.keys(existingOrders);
+                let maxNum = 0;
+                keys.forEach(k => {
+                    const match = k.match(/order-(\d+)/);
+                    if (match) {
+                        const num = parseInt(match[1], 10);
+                        if (num > maxNum) maxNum = num;
+                    }
+                });
+                nextId = `order-${maxNum + 1}`;
+            } else {
+                nextId = "order-1";
+            }
+
+            const newOrder = {
+                id: nextId,
+                customerName,
+                customerEmail,
+                customerPhone,
+                customerAddress,
+                date,
+                items: itemsStr,
+                status: 'pending',
+                totalAmount: totalAmount,
+                image: selectedImage,
+                itemsList: [{
+                    name: product.name,
+                    quantity: 1,
+                    price: getPrice() || 0,
+                    image: selectedImage || "",
+                    selectedGrade: selectedGrade || 'Standard',
+                    selectedSize: selectedQty || 'N/A',
+                    selectedPackaging: selectedPacking || ''
+                }]
+            };
+
+            await set(ref(db, `orders/${nextId}`), newOrder);
+            console.log("Successfully saved order to Firebase:", newOrder);
+        } catch (err) {
+            console.error("Failed to save order to Firebase:", err);
+        }
+
+        const priceVal = getPrice();
+        const priceStr = priceVal ? `₹${priceVal}` : "Negotiable";
+
         let message = `🛒 *New Order Request*%0A%0A`;
 
         message += `📦 *Product:* ${product.name}%0A`;
@@ -209,12 +310,18 @@ const ProductDetails = () => {
             message += `📏 *Size:* ${selectedQty}%0A`;
 
             message += `📦 *Packing:* ${selectedPacking}%0A`;
-            message += `💰 *Price:* Negotiable%0A`;
+            message += `💰 *Price:* ${priceStr}%0A`;
         } else {
             message += `🔹 *Grade:* ${selectedGrade}%0A`;
             message += `📏 *Quantity:* ${selectedQty}%0A`;
-            message += `💰 *Price:* ₹${getPrice()}%0A`;
+            message += `💰 *Price:* ${priceStr}%0A`;
         }
+
+        message += `%0A👤 *Customer Details:*%0A`;
+        message += `👤 *Name:* ${customerName}%0A`;
+        message += `📞 *Phone:* ${customerPhone}%0A`;
+        message += `📧 *Email:* ${customerEmail}%0A`;
+        message += `📍 *Address:* ${customerAddress}%0A`;
 
         message += `%0A🚀 Please share more details.`;
 
@@ -260,6 +367,12 @@ const ProductDetails = () => {
     };
 
 
+
+    if (loading) return <div className="text-center py-5">Loading...</div>;
+
+    if (!product) {
+        return <h2 className="text-center mt-5">Product not found</h2>;
+    }
 
     return (
         <div className="product-details container-fluid px-3 px-md-4 px-lg-5 py-3 py-md-4">
@@ -500,22 +613,6 @@ const ProductDetails = () => {
                             </tbody>
                         </table>
                     </div>
-
-                    {showModal && (
-                        <div className="image-modal">
-                            <span className="close-btn" onClick={() => setShowModal(false)}>✖</span>
-
-                            <button className="arrow left" onClick={prevImage}>❮</button>
-
-                            <img
-                                src={images[currentIndex]}
-                                className="modal-image"
-                                alt="preview"
-                            />
-
-                            <button className="arrow right" onClick={nextImage}>❯</button>
-                        </div>
-                    )}
                 </div>
 
                 {/* 3. RELATED PRODUCTS */}
@@ -617,6 +714,22 @@ const ProductDetails = () => {
                     </div>
                 </div>
             </div>
+
+            {showModal && (
+                <div className="image-modal">
+                    <span className="close-btn" onClick={() => setShowModal(false)}>✖</span>
+
+                    <button className="arrow left" onClick={prevImage}>❮</button>
+
+                    <img
+                        src={images[currentIndex]}
+                        className="modal-image"
+                        alt="preview"
+                    />
+
+                    <button className="arrow right" onClick={nextImage}>❯</button>
+                </div>
+            )}
         </div>
     );
 };

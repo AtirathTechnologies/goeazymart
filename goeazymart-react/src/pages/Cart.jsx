@@ -1,10 +1,126 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import Footer from '../components/Footer';
+import { ref, get, set } from 'firebase/database';
+import { db } from '../firebase';
 
 const Cart = () => {
     const { cartItems, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
+    const navigate = useNavigate();
+
+    const handleCheckout = async () => {
+        const storedUser = localStorage.getItem('user');
+        let loggedInUser = null;
+        if (storedUser) {
+            try {
+                loggedInUser = JSON.parse(storedUser);
+            } catch (e) {
+                console.error("Error parsing user from localStorage:", e);
+            }
+        }
+
+        if (!loggedInUser) {
+            alert("Please login first to place an order!");
+            navigate('/login', { state: { from: window.location.pathname } });
+            return;
+        }
+
+        const customerName = loggedInUser.name || loggedInUser.username || "Guest User";
+        const customerEmail = loggedInUser.email || "guest@goeazymart.com";
+        const customerPhone = loggedInUser.phone || "N/A";
+        const customerAddress = loggedInUser.address || "N/A";
+        const date = new Date().toISOString().split("T")[0];
+        const totalAmount = getCartTotal() || 0;
+        
+        let itemsStr = cartItems.map(item => {
+            let desc = `${item.name} x ${item.quantity}`;
+            let details = [];
+            if (item.selectedGrade) details.push(item.selectedGrade);
+            if (item.selectedQty) details.push(item.selectedQty);
+            if (item.selectedPacking) details.push(item.selectedPacking);
+            if (details.length > 0) {
+                desc += ` (${details.join(' - ')})`;
+            }
+            return desc;
+        }).join(', ');
+
+        let nextId = `order-${Date.now()}`;
+        try {
+            const ordersRef = ref(db, 'orders');
+            const ordersSnap = await get(ordersRef);
+            if (ordersSnap.exists()) {
+                const existingOrders = ordersSnap.val();
+                const keys = Object.keys(existingOrders);
+                let maxNum = 0;
+                keys.forEach(k => {
+                    const match = k.match(/order-(\d+)/);
+                    if (match) {
+                        const num = parseInt(match[1], 10);
+                        if (num > maxNum) maxNum = num;
+                    }
+                });
+                nextId = `order-${maxNum + 1}`;
+            } else {
+                nextId = "order-1";
+            }
+
+            const newOrder = {
+                id: nextId,
+                customerName,
+                customerEmail,
+                customerPhone,
+                customerAddress,
+                date,
+                items: itemsStr,
+                status: 'pending',
+                totalAmount: totalAmount,
+                image: cartItems[0]?.image || "",
+                itemsList: cartItems.map(item => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price,
+                    image: item.image || "",
+                    selectedGrade: item.selectedGrade || 'Standard',
+                    selectedSize: item.selectedQty || 'N/A',
+                    selectedPackaging: item.selectedPacking || ''
+                }))
+            };
+
+            await set(ref(db, `orders/${nextId}`), newOrder);
+            console.log("Successfully saved order to Firebase:", newOrder);
+        } catch (err) {
+            console.error("Failed to save order to Firebase:", err);
+        }
+
+        const WHATSAPP_NUMBER = "+918939396612";
+        let message = `🛒 *New Order Request (Cart)*%0A%0A`;
+        
+        cartItems.forEach((item, index) => {
+            const subtotalVal = item.price ? (parseFloat(item.price) * item.quantity).toFixed(1) : null;
+            const priceVal = subtotalVal ? `₹${subtotalVal}` : "Negotiable";
+            message += `*${index + 1}. ${item.name}*%0A`;
+            if (item.selectedGrade) message += `🔹 *Grade/Variant:* ${item.selectedGrade}%0A`;
+            if (item.selectedQty) message += `📏 *Quantity/Size:* ${item.selectedQty}%0A`;
+            if (item.selectedPacking) message += `📦 *Packing:* ${item.selectedPacking}%0A`;
+            message += `🔢 *Qty:* ${item.quantity}%0A`;
+            message += `💰 *Subtotal:* ${priceVal}%0A%0A`;
+        });
+
+        let totalStr = totalAmount > 0 ? `₹${totalAmount.toFixed(1)}` : "Negotiable";
+        message += `💰 *Total Amount:* ${totalStr}%0A`;
+        message += `%0A👤 *Customer Details:*%0A`;
+        message += `👤 *Name:* ${customerName}%0A`;
+        message += `📞 *Phone:* ${customerPhone}%0A`;
+        message += `📧 *Email:* ${customerEmail}%0A`;
+        message += `📍 *Address:* ${customerAddress}%0A`;
+        message += `%0A🚀 Please share more details.`;
+
+        const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+        window.open(whatsappURL, "_blank");
+
+        clearCart();
+    };
 
     if (cartItems.length === 0) {
         return (
@@ -191,7 +307,7 @@ const Cart = () => {
                                     
                                     <button 
                                         className="btn btn-primary w-100 py-3 rounded-3 fw-bold mb-3 shadow-sm"
-                                        onClick={() => alert("Checkout functionality coming soon! Please contact us on WhatsApp to proceed.")}
+                                        onClick={handleCheckout}
                                     >
                                         Proceed to Checkout
                                     </button>

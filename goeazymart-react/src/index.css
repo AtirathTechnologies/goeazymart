@@ -146,7 +146,7 @@ section {
   position: absolute;
   bottom: 0;
   width: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   color: #fff;
   padding: 10px;
   text-align: center;
@@ -154,7 +154,7 @@ section {
 
 .image-card:hover {
   transform: scale(1.05);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .variant-card {
@@ -182,7 +182,7 @@ section {
   bottom: 0;
   width: 100%;
   padding: 10px;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
   color: #fff;
   text-align: center;
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useProducts } from "../context/ProductContext";
 
@@ -10,6 +10,12 @@ const VariantList = () => {
   const { products, loading } = useProducts();
 
   const product = products.find(p => p.id === productId);
+
+  useEffect(() => {
+    if (product && product.name) {
+      document.title = `${product.name} | Goeazymart`;
+    }
+  }, [product]);
 
   if (loading) return <div className="text-center py-5">Loading...</div>;
 
