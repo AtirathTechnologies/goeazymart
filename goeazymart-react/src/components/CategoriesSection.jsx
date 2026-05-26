@@ -41,11 +41,7 @@ const CategoriesSection = () => {
   //   }
   // ];
 
-  const displayCategories = categories.filter(cat =>
-    ['rice', 'spices', 'seeds', 'processed', 'textile', 'herbal'].includes(cat.id)
-  );
-
-
+  const displayCategories = (categories || []).filter(cat => cat && cat.id).slice(0, 6);
 
   const handleClick = (catId) => {
     navigate(`/products?cat=${catId}`);
@@ -118,14 +114,16 @@ const CategoriesSection = () => {
         </div>
 
         {/* Button */}
-        <div style={{ marginTop: "50px" }}>
-          <button
-            className="view-all-btn"
-            onClick={() => navigate('/products')}
-          >
-            View All Products →
-          </button>
-        </div>
+        {categories && categories.length > 6 && (
+          <div style={{ marginTop: "50px" }}>
+            <button
+              className="view-all-btn"
+              onClick={() => navigate('/products')}
+            >
+              View All Categories →
+            </button>
+          </div>
+        )}
 
       </div>
 

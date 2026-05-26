@@ -8,66 +8,68 @@ import { ref as sRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 // 1. GLOBAL HELPER FUNCTIONS & CONSTANTS
 // ==========================================
 
-const compressAndEncodeImage = (file) => {
+const resizeAndCropImage = (file, targetWidth = 600, targetHeight = 600) => {
   return new Promise((resolve) => {
-    const fallbackReader = () => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.onerror = () => resolve('');
-      reader.readAsDataURL(file);
-    };
-
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
-      const canvasTimeout = setTimeout(() => {
-        console.warn("Canvas compression timed out, falling back to raw Base64.");
-        fallbackReader();
-      }, 1000);
-
       img.onload = () => {
-        clearTimeout(canvasTimeout);
         try {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 600;
-          const MAX_HEIGHT = 600;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
-          canvas.width = width;
-          canvas.height = height;
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
           const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
 
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          // Center-crop to fit target aspect ratio
+          const targetRatio = targetWidth / targetHeight;
+          const imgRatio = img.width / img.height;
+
+          let sourceX = 0;
+          let sourceY = 0;
+          let sourceWidth = img.width;
+          let sourceHeight = img.height;
+
+          if (imgRatio > targetRatio) {
+            // Image is wider than target aspect ratio
+            sourceWidth = img.height * targetRatio;
+            sourceX = (img.width - sourceWidth) / 2;
+          } else if (imgRatio < targetRatio) {
+            // Image is taller than target aspect ratio
+            sourceHeight = img.width / targetRatio;
+            sourceY = (img.height - sourceHeight) / 2;
+          }
+
+          ctx.drawImage(
+            img,
+            sourceX, sourceY, sourceWidth, sourceHeight,
+            0, 0, targetWidth, targetHeight
+          );
+
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
           resolve(dataUrl);
         } catch (e) {
-          console.error("Canvas compression failed, using raw Base64:", e);
-          fallbackReader();
+          console.error("Resize and crop failed:", e);
+          resolve(event.target.result);
         }
       };
-      img.onerror = () => {
-        clearTimeout(canvasTimeout);
-        fallbackReader();
-      };
+      img.onerror = () => resolve(event.target.result);
       img.src = event.target.result;
     };
-    reader.onerror = () => {
-      fallbackReader();
-    };
+    reader.onerror = () => resolve('');
     reader.readAsDataURL(file);
   });
+};
+
+const dataURLToBlob = (dataURL) => {
+  const arr = dataURL.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], { type: mime });
 };
 
 const PRODUCTS_INITIAL_FORM_STATE = {
@@ -903,10 +905,22 @@ const UsersTab = ({ usersList }) => {
 };
 
 // --- ProductsTab Component ---
-const ProductsTab = ({ productsList, onDeleteProduct, onAddProduct, onUpdateProduct }) => {
+const ProductsTab = ({ productsList, categoriesList = [], onDeleteProduct, onAddProduct, onUpdateProduct }) => {
   const [showProductModal, setShowProductModal] = useState(false);
   const [productForm, setProductForm] = useState(PRODUCTS_INITIAL_FORM_STATE);
   const [editingProduct, setEditingProduct] = useState(null);
+
+  const getCategoryLabel = (catId) => {
+    if (!categoriesList || !Array.isArray(categoriesList)) return catId || 'N/A';
+    const found = categoriesList.find(c => c.id === catId);
+    return found ? found.label : (catId || 'N/A');
+  };
+
+  const getCategoryPhoto = (catId) => {
+    if (!categoriesList || !Array.isArray(categoriesList)) return '/categories/rice.jpg';
+    const found = categoriesList.find(c => c.id === catId);
+    return found && found.image ? found.image : '/categories/rice.jpg';
+  };
   const [selectedGradesProduct, setSelectedGradesProduct] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadingVariantIndex, setUploadingVariantIndex] = useState(null);
@@ -922,9 +936,14 @@ const ProductsTab = ({ productsList, onDeleteProduct, onAddProduct, onUpdateProd
     }
 
     try {
+      const targetW = type === 'banner' ? 800 : 500;
+      const targetH = type === 'banner' ? 400 : 500;
+      const processedBase64 = await resizeAndCropImage(file, targetW, targetH);
+      const processedBlob = dataURLToBlob(processedBase64);
+
       try {
-        const fileRef = sRef(storage, `products/${Date.now()}_${file.name}`);
-        const uploadPromise = uploadBytes(fileRef, file).then(async (snapshot) => {
+        const fileRef = sRef(storage, `products/${Date.now()}_${file.name.replace(/\.[^/.]+$/, "")}.jpg`);
+        const uploadPromise = uploadBytes(fileRef, processedBlob).then(async (snapshot) => {
           return await getDownloadURL(snapshot.ref);
         });
 
@@ -936,25 +955,23 @@ const ProductsTab = ({ productsList, onDeleteProduct, onAddProduct, onUpdateProd
 
         if (type === 'banner') {
           setProductForm({ ...productForm, banner: downloadURL });
-          alert('Product banner uploaded successfully to Storage!');
+          alert('Product banner uploaded successfully to Storage (resized & optimized)!');
         } else {
           const newList = [...productForm.variantsList];
           newList[index].image = downloadURL;
           setProductForm({ ...productForm, variantsList: newList });
-          alert('Variant image uploaded successfully to Storage!');
+          alert('Variant image uploaded successfully to Storage (resized & optimized)!');
         }
       } catch (storageError) {
         console.warn("Storage upload failed or timed out, falling back to local compressed Base64:", storageError);
-        const base64 = await compressAndEncodeImage(file);
-
         if (type === 'banner') {
-          setProductForm({ ...productForm, banner: base64 });
-          alert('Product banner compressed & saved locally successfully!');
+          setProductForm({ ...productForm, banner: processedBase64 });
+          alert('Product banner compressed, resized & saved locally!');
         } else {
           const newList = [...productForm.variantsList];
-          newList[index].image = base64;
+          newList[index].image = processedBase64;
           setProductForm({ ...productForm, variantsList: newList });
-          alert('Variant image compressed & saved locally successfully!');
+          alert('Variant image compressed, resized & saved locally!');
         }
       }
     } catch (err) {
@@ -1257,7 +1274,7 @@ const ProductsTab = ({ productsList, onDeleteProduct, onAddProduct, onUpdateProd
                   <td style={{ fontWeight: '600', color: '#718096' }}>{p.id}</td>
                   <td>
                     <img
-                      src={(p.images && p.images[0]) || p.banner || '/categories/rice.jpg'}
+                      src={(p.images && p.images[0]) || p.banner || getCategoryPhoto(p.cat || p.category)}
                       alt={p.name}
                       style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #edf2f7' }}
                     />
@@ -1272,7 +1289,7 @@ const ProductsTab = ({ productsList, onDeleteProduct, onAddProduct, onUpdateProd
                       color: '#4a5568',
                       textTransform: 'capitalize'
                     }}>
-                      {p.cat || p.category || 'N/A'}
+                      {getCategoryLabel(p.cat || p.category)}
                     </span>
                   </td>
                   <td>
@@ -1354,7 +1371,7 @@ const ProductsTab = ({ productsList, onDeleteProduct, onAddProduct, onUpdateProd
               {/* Top row: Image + Name + Category */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 14px 10px' }}>
                 <img
-                  src={(p.images && p.images[0]) || p.banner || '/categories/rice.jpg'}
+                  src={(p.images && p.images[0]) || p.banner || getCategoryPhoto(p.cat || p.category)}
                   alt={p.name}
                   style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #e2e8f0', flexShrink: 0 }}
                 />
@@ -1370,7 +1387,7 @@ const ProductsTab = ({ productsList, onDeleteProduct, onAddProduct, onUpdateProd
                       textTransform: 'capitalize',
                       fontWeight: '600'
                     }}>
-                      {p.cat || p.category || 'N/A'}
+                      {getCategoryLabel(p.cat || p.category)}
                     </span>
                     <span style={{ fontSize: '13px', fontWeight: '800', color: '#c8972b' }}>
                       {getPriceRange(p.price)}
@@ -1492,13 +1509,14 @@ const ProductsTab = ({ productsList, onDeleteProduct, onAddProduct, onUpdateProd
                     <select
                       value={productForm.cat}
                       onChange={(e) => setProductForm({ ...productForm, cat: e.target.value })}
-                      style={{ padding: '8px 12px', fontSize: '13px', borderRadius: '6px', border: '1px solid #ddd', width: '100%' }}
+                      style={{ padding: '8px 12px', fontSize: '13px', borderRadius: '6px', border: '1px solid #ddd', width: '100%', textTransform: 'capitalize' }}
                     >
-                      <option value="rice">Rice</option>
-                      <option value="processed">Processed Food (e.g. Tuna)</option>
-                      <option value="spices">Spices & Powders</option>
-                      <option value="seeds">Seeds & Grain</option>
-                      <option value="herbal">Herbal Products</option>
+                      <option value="">-- Select Category --</option>
+                      {categoriesList.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.label || cat.id}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -2166,9 +2184,12 @@ const CategoriesTab = ({ categoriesList, onDeleteCategory, onAddCategory, onUpda
 
     setUploading(true);
     try {
+      const processedBase64 = await resizeAndCropImage(file, 500, 500);
+      const processedBlob = dataURLToBlob(processedBase64);
+
       try {
-        const fileRef = sRef(storage, `categories/${Date.now()}_${file.name}`);
-        const uploadPromise = uploadBytes(fileRef, file).then(async (snapshot) => {
+        const fileRef = sRef(storage, `categories/${Date.now()}_${file.name.replace(/\.[^/.]+$/, "")}.jpg`);
+        const uploadPromise = uploadBytes(fileRef, processedBlob).then(async (snapshot) => {
           return await getDownloadURL(snapshot.ref);
         });
 
@@ -2178,12 +2199,11 @@ const CategoriesTab = ({ categoriesList, onDeleteCategory, onAddCategory, onUpda
 
         const downloadURL = await Promise.race([uploadPromise, timeoutPromise]);
         setCategoryForm({ ...categoryForm, image: downloadURL });
-        alert('Category image uploaded successfully to Storage!');
+        alert('Category image uploaded successfully to Storage (resized & optimized)!');
       } catch (storageError) {
         console.warn("Storage upload failed or timed out, falling back to local compressed Base64:", storageError);
-        const base64 = await compressAndEncodeImage(file);
-        setCategoryForm({ ...categoryForm, image: base64 });
-        alert('Image compressed & saved locally successfully!');
+        setCategoryForm({ ...categoryForm, image: processedBase64 });
+        alert('Image compressed, resized & saved locally!');
       }
     } catch (err) {
       console.error(err);
@@ -3659,6 +3679,7 @@ const AdminPanel = () => {
         {activeTab === 'products' && (
           <ProductsTab
             productsList={productsList}
+            categoriesList={categoriesList}
             onDeleteProduct={handleDeleteProduct}
             onAddProduct={handleAddProduct}
             onUpdateProduct={handleUpdateProduct}
