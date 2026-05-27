@@ -64,10 +64,6 @@
   height: 240px;
   border-radius: 16px;
   overflow: hidden;
-  background: #f8f8f8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   transition: box-shadow 0.3s ease;
 }
@@ -77,9 +73,11 @@
 }
 
 .product-card img {
-  max-width: 90%;
-  max-height: 90%;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 /* PRODUCT INFO BELOW CARD */
@@ -178,15 +176,19 @@
 .image-box {
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f8f8f8;
+  overflow: hidden;
 }
 
-/* IMAGE */
+/* IMAGE inside image-box — always fills card uniformly */
 .image-box img {
-  max-width: 90%;
-  max-height: 90%;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.card-wrapper:hover .image-box img {
+  transform: scale(1.06);
 }

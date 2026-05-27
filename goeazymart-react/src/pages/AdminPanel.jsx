@@ -936,6 +936,7 @@ const ProductsTab = ({ productsList, categoriesList = [], onDeleteProduct, onAdd
     }
 
     try {
+      // Resize: banner → 800×400, variant → 500×500 (square crop)
       const targetW = type === 'banner' ? 800 : 500;
       const targetH = type === 'banner' ? 400 : 500;
       const processedBase64 = await resizeAndCropImage(file, targetW, targetH);
@@ -947,36 +948,37 @@ const ProductsTab = ({ productsList, categoriesList = [], onDeleteProduct, onAdd
           return await getDownloadURL(snapshot.ref);
         });
 
+        // 30 seconds timeout — enough for most uploads
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Storage Timeout")), 1500)
+          setTimeout(() => reject(new Error("Storage Timeout")), 30000)
         );
 
         const downloadURL = await Promise.race([uploadPromise, timeoutPromise]);
 
         if (type === 'banner') {
-          setProductForm({ ...productForm, banner: downloadURL });
-          alert('Product banner uploaded successfully to Storage (resized & optimized)!');
+          setProductForm(prev => ({ ...prev, banner: downloadURL }));
         } else {
-          const newList = [...productForm.variantsList];
-          newList[index].image = downloadURL;
-          setProductForm({ ...productForm, variantsList: newList });
-          alert('Variant image uploaded successfully to Storage (resized & optimized)!');
+          setProductForm(prev => {
+            const newList = [...prev.variantsList];
+            newList[index] = { ...newList[index], image: downloadURL };
+            return { ...prev, variantsList: newList };
+          });
         }
       } catch (storageError) {
-        console.warn("Storage upload failed or timed out, falling back to local compressed Base64:", storageError);
+        console.warn("Storage upload failed or timed out, falling back to Base64:", storageError);
+        // Fallback: store compressed Base64 locally
         if (type === 'banner') {
-          setProductForm({ ...productForm, banner: processedBase64 });
-          alert('Product banner compressed, resized & saved locally!');
+          setProductForm(prev => ({ ...prev, banner: processedBase64 }));
         } else {
-          const newList = [...productForm.variantsList];
-          newList[index].image = processedBase64;
-          setProductForm({ ...productForm, variantsList: newList });
-          alert('Variant image compressed, resized & saved locally!');
+          setProductForm(prev => {
+            const newList = [...prev.variantsList];
+            newList[index] = { ...newList[index], image: processedBase64 };
+            return { ...prev, variantsList: newList };
+          });
         }
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to process image: ' + err.message);
     } finally {
       setUploading(false);
       setUploadingVariantIndex(null);
@@ -1486,7 +1488,7 @@ const ProductsTab = ({ productsList, categoriesList = [], onDeleteProduct, onAdd
             marginBottom: '40px'
           }}>
             <h4 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '700', color: '#2d3748', borderBottom: '2px solid #f7fafc', paddingBottom: '10px' }}>
-              {editingProduct ? '✏️ Edit Agricultural Product (Firebase Schema)' : '➕ Add Agricultural Product (Firebase Schema)'}
+              {editingProduct ? '✏️ Edit Agricultural Product' : '➕ Add Agricultural Product'}
             </h4>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div className="row g-3">
@@ -1570,7 +1572,8 @@ const ProductsTab = ({ productsList, categoriesList = [], onDeleteProduct, onAdd
                           disabled={uploading}
                           style={{ fontSize: '12px', width: '100%' }}
                         />
-                        {uploading && <span style={{ fontSize: '11px', color: '#c8972b', fontWeight: '600' }}>⌛ Processing Banner...</span>}
+                        {uploading && <span style={{ fontSize: '11px', color: '#c8972b', fontWeight: '600' }}>⌛ Uploading & resizing banner...</span>}
+                        {!uploading && productForm.banner && productForm.banner.startsWith('http') && <span style={{ fontSize: '11px', color: '#10b981', fontWeight: '600' }}>✅ Uploaded to Cloud</span>}
                       </div>
                       <div className="col-12 col-sm-6">
                         <label style={{ fontSize: '11px', color: '#718096', fontWeight: '600', display: 'block', marginBottom: '4px' }}>Or Paste Banner Path/URL</label>
@@ -1677,7 +1680,8 @@ const ProductsTab = ({ productsList, categoriesList = [], onDeleteProduct, onAdd
                                   disabled={uploadingVariantIndex === index}
                                   style={{ fontSize: '11px', width: '100%' }}
                                 />
-                                {uploadingVariantIndex === index && <span style={{ fontSize: '9px', color: '#c8972b', fontWeight: '600' }}>⌛ Processing...</span>}
+                                {uploadingVariantIndex === index && <span style={{ fontSize: '9px', color: '#c8972b', fontWeight: '600' }}>⌛ Uploading & resizing...</span>}
+                                {uploadingVariantIndex !== index && v.image && v.image.startsWith('http') && <span style={{ fontSize: '9px', color: '#10b981', fontWeight: '600' }}>✅ Cloud uploaded</span>}
                               </div>
                               <div className="col-12 col-sm-6">
                                 <span style={{ fontSize: '9px', color: '#718096', fontWeight: '600', display: 'block', marginBottom: '2px' }}>Or Paste Image Path/URL</span>
@@ -1997,9 +2001,10 @@ const ProductsTab = ({ productsList, categoriesList = [], onDeleteProduct, onAdd
               <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                 <button
                   type="submit"
-                  style={{ flex: 1, padding: '12px', background: '#c8972b', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', fontSize: '14px' }}
+                  disabled={uploading || uploadingVariantIndex !== null}
+                  style={{ flex: 1, padding: '12px', background: (uploading || uploadingVariantIndex !== null) ? '#a0aec0' : '#c8972b', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: (uploading || uploadingVariantIndex !== null) ? 'not-allowed' : 'pointer', fontSize: '14px' }}
                 >
-                  {editingProduct ? 'Save Changes & Update' : 'Submit & Add Product'}
+                  {(uploading || uploadingVariantIndex !== null) ? '⌛ Uploading Image...' : editingProduct ? 'Save Changes & Update' : 'Submit & Add Product'}
                 </button>
                 <button
                   type="button"
@@ -2184,6 +2189,7 @@ const CategoriesTab = ({ categoriesList, onDeleteCategory, onAddCategory, onUpda
 
     setUploading(true);
     try {
+      // Resize & center-crop to 500×500 square for category cards
       const processedBase64 = await resizeAndCropImage(file, 500, 500);
       const processedBlob = dataURLToBlob(processedBase64);
 
@@ -2193,21 +2199,20 @@ const CategoriesTab = ({ categoriesList, onDeleteCategory, onAddCategory, onUpda
           return await getDownloadURL(snapshot.ref);
         });
 
+        // 30 seconds timeout — enough for most uploads
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Storage Timeout")), 1500)
+          setTimeout(() => reject(new Error("Storage Timeout")), 30000)
         );
 
         const downloadURL = await Promise.race([uploadPromise, timeoutPromise]);
-        setCategoryForm({ ...categoryForm, image: downloadURL });
-        alert('Category image uploaded successfully to Storage (resized & optimized)!');
+        setCategoryForm(prev => ({ ...prev, image: downloadURL }));
       } catch (storageError) {
-        console.warn("Storage upload failed or timed out, falling back to local compressed Base64:", storageError);
-        setCategoryForm({ ...categoryForm, image: processedBase64 });
-        alert('Image compressed, resized & saved locally!');
+        console.warn("Storage upload failed or timed out, falling back to Base64:", storageError);
+        // Fallback: store compressed Base64 locally
+        setCategoryForm(prev => ({ ...prev, image: processedBase64 }));
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to process image: ' + err.message);
     } finally {
       setUploading(false);
     }
@@ -2483,7 +2488,8 @@ const CategoriesTab = ({ categoriesList, onDeleteCategory, onAddCategory, onUpda
                     disabled={uploading}
                     style={{ fontSize: '12px' }}
                   />
-                  {uploading && <span style={{ fontSize: '11px', color: '#c8972b', fontWeight: '600' }}>⌛ Processing Image...</span>}
+                  {uploading && <span style={{ fontSize: '11px', color: '#c8972b', fontWeight: '600' }}>⌛ Uploading & resizing image...</span>}
+                  {!uploading && categoryForm.image && categoryForm.image.startsWith('http') && <span style={{ fontSize: '11px', color: '#10b981', fontWeight: '600' }}>✅ Uploaded to Cloud Storage</span>}
                 </div>
 
                 <div style={{ height: '1px', background: '#e2e8f0', margin: '8px 0' }} />
@@ -2516,9 +2522,10 @@ const CategoriesTab = ({ categoriesList, onDeleteCategory, onAddCategory, onUpda
               <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                 <button
                   type="submit"
-                  style={{ flex: 1, padding: '12px', background: '#c8972b', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', fontSize: '14px' }}
+                  disabled={uploading}
+                  style={{ flex: 1, padding: '12px', background: uploading ? '#a0aec0' : '#c8972b', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: uploading ? 'not-allowed' : 'pointer', fontSize: '14px' }}
                 >
-                  {isEditMode ? '💾 Update Category' : '💾 Save Category'}
+                  {uploading ? '⌛ Uploading...' : isEditMode ? '💾 Update Category' : '💾 Save Category'}
                 </button>
                 <button
                   type="button"
